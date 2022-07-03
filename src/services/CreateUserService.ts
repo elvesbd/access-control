@@ -1,6 +1,6 @@
 import { User } from '../models/User';
 import UserRepository from '../repositories/UserRepository';
-import { EncryptUtils } from '../shared/encrypt.util';
+import { EncryptUtils } from '../shared/utils/encrypt.util';
 
 type UserType = {
   name: string;
