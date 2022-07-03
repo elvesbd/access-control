@@ -15,7 +15,7 @@ class UserRepository {
     return usersRepository.save(newUser);
   }
 
-  async findOneUser(username: string): Promise<User | null> {
+  async findByUsername(username: string): Promise<User | null> {
     const usersRepository = dataSource.getRepository(User);
 
     return usersRepository.findOne({
@@ -23,6 +23,13 @@ class UserRepository {
         username,
       },
     });
+  }
+
+  async findById(id: string): Promise<User | null> {
+    console.log('findById', id);
+    const usersRepository = dataSource.getRepository(User);
+
+    return usersRepository.findOneBy({ id });
   }
 }
 
