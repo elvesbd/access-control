@@ -1,5 +1,6 @@
 import { User } from '../models/User';
-import { UserRepository } from '../repositories/UserRepository';
+import UserRepository from '../repositories/UserRepository';
+import { EncryptUtils } from '../shared/encrypt.util';
 
 type UserType = {
   name: string;
@@ -8,14 +9,22 @@ type UserType = {
 };
 
 class CreateUserService {
-  async execute(user: UserType): Promise<User | Error> {
-    const userRepository = new UserRepository();
+  async execute(data: UserType): Promise<Partial<User> | Error> {
+    const passwordHash = await EncryptUtils.hashPassword(data.password);
 
-    if (await userRepository.findOneUser(user.username)) {
-      return new Error(`User ${user.username} already exists`);
+    const userData = {
+      name: data.name,
+      username: data.username,
+      password: passwordHash,
+    };
+
+    const newUser = await UserRepository.createUser(userData);
+
+    if (!newUser) {
+      return new Error(`User not created.`);
     }
-
-    return userRepository.createUser(user);
+    const { password, ...user } = newUser;
+    return user;
   }
 }
 

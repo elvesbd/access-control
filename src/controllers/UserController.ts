@@ -7,13 +7,21 @@ class UserController {
     try {
       const { name, username, password } = request.body;
 
-      if (username) {
-        const userExists = await FindOneUserService.execute(username);
-        if (userExists) {
-          return response
-            .status(400)
-            .json({ error: `User ${username} already exists` });
-        }
+      if (!name) {
+        return response.status(400).json({ error: 'Name is required' });
+      }
+
+      if (!username) {
+        return response.status(400).json({ error: 'Username is required' });
+      }
+
+      if (!password) {
+        return response.status(400).json({ error: 'Password is required' });
+      }
+
+      const userExists = await FindOneUserService.execute(username);
+      if (userExists instanceof Error) {
+        return response.status(400).json({ error: userExists.message });
       }
 
       const user = await CreateUserService.execute({
@@ -21,7 +29,11 @@ class UserController {
         username,
         password,
       });
-      response.status(201).json(user);
+      if (user instanceof Error) {
+        return response.status(400).json({ error: user.message });
+      }
+
+      return response.json(user);
     } catch (error) {
       return response
         .status(400)
